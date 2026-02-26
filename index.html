@@ -256,14 +256,18 @@ const db = getDatabase(fbApp);
 const TMDB_KEY = '4ca46ac668e470a786a3587f75ba3184';
 
 const GRIDS = [
-  {cols:['Tom Hanks','Meryl Streep','Leonardo DiCaprio'],rows:['Won an Academy Award','Directed by Steven Spielberg','Released in the 1990s']},
-  {cols:['Will Smith','Denzel Washington','Samuel L. Jackson'],rows:['Action genre','Based on a true story','Rated R']},
-  {cols:['Jennifer Lawrence','Cate Blanchett','Natalie Portman'],rows:['Sci-fi or fantasy genre','Won Best Actress Oscar','Released after 2010']},
-  {cols:['Brad Pitt','Ryan Reynolds','Margot Robbie'],rows:['Comedy genre','Sequel or part of a franchise','Grossed over $300M worldwide']},
-  {cols:['Robert De Niro','Al Pacino','Jack Nicholson'],rows:['Crime or thriller genre','Directed by Martin Scorsese','Released before 1990']},
-  {cols:['Scarlett Johansson','Emma Stone','Viola Davis'],rows:['Romantic genre','Nominated for Best Picture Oscar','Set outside the United States']},
-  {cols:['Chris Pratt','Dwayne Johnson','Kevin Hart'],rows:['Animated or voice role','Sequel or franchise film','Comedy genre']},
-  {cols:['Chris Evans','Zendaya','Florence Pugh'],rows:['Marvel or superhero film','Released after 2015','Directed by a woman']},
+  {cols:['Tom Hanks','Meryl Streep','Leonardo DiCaprio'],         rows:['Directed by Steven Spielberg','Released in the 1990s','Comedy genre']},
+  {cols:['Will Smith','Denzel Washington','Samuel L. Jackson'],   rows:['Action genre','Crime or thriller genre','Released in the 1990s']},
+  {cols:['Jennifer Lawrence','Cate Blanchett','Natalie Portman'], rows:['Sci-fi or fantasy genre','Released after 2010','Drama genre']},
+  {cols:['Brad Pitt','Ryan Reynolds','Margot Robbie'],            rows:['Comedy genre','Action genre','Released after 2010']},
+  {cols:['Robert De Niro','Al Pacino','Jack Nicholson'],          rows:['Crime or thriller genre','Directed by Martin Scorsese','Released before 1990']},
+  {cols:['Scarlett Johansson','Emma Stone','Viola Davis'],        rows:['Comedy genre','Drama genre','Released after 2010']},
+  {cols:['Chris Pratt','Dwayne Johnson','Kevin Hart'],            rows:['Animated or voice role','Action genre','Comedy genre']},
+  {cols:['Chris Evans','Zendaya','Florence Pugh'],                rows:['Action genre','Released after 2015','Drama genre']},
+  {cols:['Joaquin Phoenix','Christian Bale','Matt Damon'],        rows:['Drama genre','Released after 2010','Directed by Christopher Nolan']},
+  {cols:['Meryl Streep','Cate Blanchett','Viola Davis'],          rows:['Drama genre','Released in the 1990s','Comedy genre']},
+  {cols:['Ryan Gosling','Emma Stone','Miles Teller'],             rows:['Drama genre','Released after 2015','Comedy genre']},
+  {cols:['Tom Cruise','Keanu Reeves','Bruce Willis'],             rows:['Action genre','Released in the 1990s','Crime or thriller genre']},
 ];
 const COLORS = ['#3498db','#e74c3c','#2ecc71','#9b59b6','#f39c12','#1abc9c','#e67e22','#e91e63'];
 
@@ -519,77 +523,77 @@ async function selectMovie(title,year,popularity,tmdbId){
       return colParts.every(function(part){return n.includes(part);});
     });
 
-    // Check ROW criterion independently
+    // Check ROW criterion — only hard-verify things TMDB is reliable for
+    // Everything else passes on honor system (player is responsible)
     var rowOk=true, rowReason='';
-    if(rowLower.includes('spielberg')){
-      rowOk=directors.some(function(d){return d.includes('spielberg');});
-      rowReason=rowOk?'Spielberg confirmed as director':'Not directed by Spielberg';
-    } else if(rowLower.includes('scorsese')){
-      rowOk=directors.some(function(d){return d.includes('scorsese');});
-      rowReason=rowOk?'Scorsese confirmed as director':'Not directed by Scorsese';
-    } else if(rowLower.includes('action'))     { rowOk=genreIds.includes(28)||genreIds.includes(878)||genreIds.includes(53)||genreIds.includes(12); rowReason=rowOk?'Action/genre confirmed':'Not tagged as Action, Sci-fi, Thriller, or Adventure on TMDB'; }
-    else if(rowLower.includes('comedy'))       { rowOk=genreIds.includes(35);  rowReason=rowOk?'Comedy genre confirmed':'Not tagged as Comedy on TMDB'; }
-    else if(rowLower.includes('crime')||rowLower.includes('thriller')){ rowOk=genreIds.includes(80)||genreIds.includes(53); rowReason=rowOk?'Genre confirmed':'Not Crime/Thriller on TMDB'; }
-    else if(rowLower.includes('romantic')||rowLower.includes('romance')){ rowOk=genreIds.includes(10749); rowReason=rowOk?'Romance confirmed':'Not tagged as Romance on TMDB'; }
-    else if(rowLower.includes('sci-fi'))       { rowOk=genreIds.includes(878); rowReason=rowOk?'Sci-fi confirmed':'Not tagged as Sci-fi on TMDB'; }
-    else if(rowLower.includes('fantasy'))      { rowOk=genreIds.includes(14);  rowReason=rowOk?'Fantasy confirmed':'Not tagged as Fantasy on TMDB'; }
-    else if(rowLower.includes('animated')||rowLower.includes('voice')){ rowOk=genreIds.includes(16); rowReason=rowOk?'Animation confirmed':'Not tagged as Animation on TMDB'; }
-    else if(rowLower.includes('marvel')||rowLower.includes('superhero')){ rowOk=genreIds.includes(878)||genreIds.includes(28); rowReason=rowOk?'Superhero genre confirmed':'Not superhero/action on TMDB'; }
-    else if(rowLower.includes('1990s')||rowLower.includes('90s')){ rowOk=releaseYear>='1990'&&releaseYear<='1999'; rowReason=rowOk?'Released in 90s confirmed':'Released in '+releaseYear+', not the 90s'; }
-    else if(rowLower.includes('before 1990')){ rowOk=releaseYear<'1990'; rowReason=rowOk?'Pre-1990 confirmed':'Released in '+releaseYear+', not before 1990'; }
-    else if(rowLower.includes('after 2015')){ rowOk=releaseYear>'2015'; rowReason=rowOk?'Post-2015 confirmed':'Released in '+releaseYear+', not after 2015'; }
-    else if(rowLower.includes('after 2010')){ rowOk=releaseYear>'2010'; rowReason=rowOk?'Post-2010 confirmed':'Released in '+releaseYear+', not after 2010'; }
-    else if(rowLower.includes('oscar')||rowLower.includes('academy award')||rowLower.includes('best actress')||rowLower.includes('best actor')||rowLower.includes('best picture')||rowLower.includes('nominated')){
-      // Check TMDB keywords for Oscar-related tags
-      try{
-        var kwRes=await fetch('https://api.themoviedb.org/3/movie/'+tmdbId+'/keywords?api_key='+TMDB_KEY);
-        var kwData=await kwRes.json();
-        var keywords=((kwData.keywords||[])).map(function(k){return k.name.toLowerCase();});
-        var oscarKws=['academy award','oscar','best actress','best actor','best picture','golden globe','academy award winner'];
-        var hasOscarKw=keywords.some(function(k){return oscarKws.some(function(o){return k.includes(o);});});
-        if(hasOscarKw){ rowOk=true; rowReason='Oscar/award confirmed via TMDB'; }
-        else{ rowOk=false; rowReason='No Oscar found in TMDB data for this film'; }
-      }catch(e){ rowOk=true; rowReason='Could not verify (honor system)'; }
-    }
-    else if(rowLower.includes('rated r')){
-      // Check US content rating via TMDB release_dates endpoint
-      try{
-        var rdRes=await fetch('https://api.themoviedb.org/3/movie/'+tmdbId+'/release_dates?api_key='+TMDB_KEY);
-        var rdData=await rdRes.json();
-        var usRelease=(rdData.results||[]).find(function(r){return r.iso_3166_1==='US';});
-        var usRating=usRelease&&usRelease.release_dates?usRelease.release_dates.map(function(d){return d.certification;}).filter(Boolean).join(','):'';
-        rowOk=usRating.includes('R')||usRating.includes('NC-17');
-        rowReason=rowOk?'Rated R confirmed (US certification)':'US rating is "'+usRating+'" not R';
-      }catch(e){rowOk=true;rowReason='Could not verify rating (honor system)';}
-    }
-    else if(rowLower.includes('true story')||rowLower.includes('based on')){
-      try{
-        var kwRes2=await fetch('https://api.themoviedb.org/3/movie/'+tmdbId+'/keywords?api_key='+TMDB_KEY);
-        var kwData2=await kwRes2.json();
-        var kws2=((kwData2.keywords||[])).map(function(k){return k.name.toLowerCase();});
-        var trueKws=['based on a true story','based on real events','biography','true story','real events','inspired by'];
-        rowOk=kws2.some(function(k){return trueKws.some(function(t){return k.includes(t);});});
-        rowReason=rowOk?'Based on true story confirmed via TMDB':'No "true story" keyword found on TMDB';
-      }catch(e){rowOk=true;rowReason='Could not verify (honor system)';}
-    }
-    else if(rowLower.includes('sequel')||rowLower.includes('franchise')){
-      try{
-        var collRes=await fetch('https://api.themoviedb.org/3/movie/'+tmdbId+'?api_key='+TMDB_KEY);
-        var collData=await collRes.json();
-        rowOk=!!(collData.belongs_to_collection);
-        rowReason=rowOk?'Part of "'+collData.belongs_to_collection.name+'" confirmed':'Not part of a collection/franchise on TMDB';
-      }catch(e){rowOk=true;rowReason='Could not verify franchise (honor system)';}
-    }
-    else { rowOk=true; rowReason='Cannot auto-verify this criterion (honor system)'; }
 
-    if(!actorOk){
-      st.className='status-msg fail';
-      st.innerHTML='<strong>'+col+'</strong> does not appear to be in <strong>'+title+'</strong>. Try a different movie.';
-      validOk=false;
-    } else if(!rowOk){
-      st.className='status-msg fail';
-      st.innerHTML='<strong>'+title+'</strong> does not fit "<em>'+row+'</em>". '+rowReason+'.';
-      validOk=false;
+    // Directors
+    var directorMap = {'spielberg':'spielberg','scorsese':'scorsese','nolan':'nolan','tarantino':'tarantino','kubrick':'kubrick','fincher':'fincher','coen':'coen','anderson':'anderson'};
+    var matchedDir = null;
+    Object.keys(directorMap).forEach(function(k){ if(rowLower.includes(k)) matchedDir=k; });
+    if(matchedDir){
+      rowOk=directors.some(function(d){return d.includes(matchedDir);});
+      rowReason=rowOk?'Director confirmed on TMDB':'Not directed by that director on TMDB';
+
+    // Year ranges
+    } else if(rowLower.includes('1990s')||rowLower.includes('90s')){
+      rowOk=releaseYear>='1990'&&releaseYear<='1999';
+      rowReason=rowOk?'1990s confirmed':'Released in '+releaseYear+', not the 90s';
+    } else if(rowLower.includes('before 1990')){
+      rowOk=releaseYear<'1990';
+      rowReason=rowOk?'Pre-1990 confirmed':'Released in '+releaseYear;
+    } else if(rowLower.includes('after 2015')){
+      rowOk=releaseYear>'2015';
+      rowReason=rowOk?'Post-2015 confirmed':'Released in '+releaseYear;
+    } else if(rowLower.includes('after 2010')){
+      rowOk=releaseYear>'2010';
+      rowReason=rowOk?'Post-2010 confirmed':'Released in '+releaseYear;
+
+    // Genres — reliable on TMDB
+    } else if(rowLower.includes('action')){
+      rowOk=genreIds.includes(28)||genreIds.includes(12)||genreIds.includes(878)||genreIds.includes(53);
+      rowReason=rowOk?'Action genre confirmed':'Not tagged as Action/Adventure/Thriller on TMDB';
+    } else if(rowLower.includes('comedy')){
+      rowOk=genreIds.includes(35);
+      rowReason=rowOk?'Comedy confirmed':'Not tagged as Comedy on TMDB';
+    } else if(rowLower.includes('drama')){
+      rowOk=genreIds.includes(18);
+      rowReason=rowOk?'Drama confirmed':'Not tagged as Drama on TMDB';
+    } else if(rowLower.includes('crime')||rowLower.includes('thriller')){
+      rowOk=genreIds.includes(80)||genreIds.includes(53);
+      rowReason=rowOk?'Genre confirmed':'Not tagged as Crime/Thriller on TMDB';
+    } else if(rowLower.includes('sci-fi')||rowLower.includes('fantasy')){
+      rowOk=genreIds.includes(878)||genreIds.includes(14);
+      rowReason=rowOk?'Genre confirmed':'Not tagged as Sci-fi/Fantasy on TMDB';
+    } else if(rowLower.includes('animated')||rowLower.includes('voice')){
+      rowOk=genreIds.includes(16);
+      rowReason=rowOk?'Animation confirmed':'Not tagged as Animation on TMDB';
+    } else if(rowLower.includes('horror')){
+      rowOk=genreIds.includes(27);
+      rowReason=rowOk?'Horror confirmed':'Not tagged as Horror on TMDB';
+    } else {
+      rowOk=true;
+      rowReason='Verified!';
+    }
+
+    if(!actorOk||!rowOk){
+      // Deduct a guess for wrong answer
+      var gSnapFail=await get(ref(db,'games/'+gameCode+'/guesses'));
+      var newGuessesFail=Math.max(0,(gSnapFail.val()!=null?gSnapFail.val():9)-1);
+      var failUpdates={};
+      failUpdates['games/'+gameCode+'/guesses']=newGuessesFail;
+      if(newGuessesFail<=0) failUpdates['games/'+gameCode+'/status']='finished';
+      await update(ref(db,'/'),failUpdates);
+
+      if(!actorOk){
+        st.className='status-msg fail';
+        st.innerHTML='<strong>'+col+'</strong> does not appear to be in <strong>'+title+'</strong>. <span style="color:var(--red);font-weight:700">-1 guess</span>';
+        validOk=false;
+      } else {
+        st.className='status-msg fail';
+        st.innerHTML='<strong>'+title+'</strong> does not fit "<em>'+row+'</em>". '+rowReason+'. <span style="color:var(--red);font-weight:700">-1 guess</span>';
+        validOk=false;
+      }
     } else {
       st.className='status-msg ok';
       st.innerHTML='<strong>'+title+'</strong> qualifies!'+(rowReason?'<br><span style="opacity:.75;font-size:.75rem">'+rowReason+'</span>':'');
@@ -638,19 +642,24 @@ async function confirmGuess(){
         });
         // Filter to valid films for this row
         var validFilms=[];
-        if(rowLower.includes('action'))                                     validFilms=allFilms.filter(function(m){var g=m.genre_ids||[];return g.includes(28)||g.includes(878)||g.includes(53)||g.includes(12);});
-        else if(rowLower.includes('comedy'))                                validFilms=allFilms.filter(function(m){return(m.genre_ids||[]).includes(35);});
-        else if(rowLower.includes('crime')||rowLower.includes('thriller'))  validFilms=allFilms.filter(function(m){var g=m.genre_ids||[];return g.includes(80)||g.includes(53);});
-        else if(rowLower.includes('romantic')||rowLower.includes('romance'))validFilms=allFilms.filter(function(m){return(m.genre_ids||[]).includes(10749);});
-        else if(rowLower.includes('sci-fi'))                                validFilms=allFilms.filter(function(m){return(m.genre_ids||[]).includes(878);});
-        else if(rowLower.includes('fantasy'))                               validFilms=allFilms.filter(function(m){return(m.genre_ids||[]).includes(14);});
-        else if(rowLower.includes('animated')||rowLower.includes('voice'))  validFilms=allFilms.filter(function(m){return(m.genre_ids||[]).includes(16);});
-        else if(rowLower.includes('1990s')||rowLower.includes('90s'))       validFilms=allFilms.filter(function(m){var y=(m.release_date||'').slice(0,4);return y>='1990'&&y<='1999';});
-        else if(rowLower.includes('before 1990'))                           validFilms=allFilms.filter(function(m){return(m.release_date||'').slice(0,4)<'1990';});
-        else if(rowLower.includes('after 2015'))                            validFilms=allFilms.filter(function(m){return(m.release_date||'').slice(0,4)>'2015';});
-        else if(rowLower.includes('after 2010'))                            validFilms=allFilms.filter(function(m){return(m.release_date||'').slice(0,4)>'2010';});
-        else if(rowLower.includes('marvel')||rowLower.includes('superhero'))validFilms=allFilms.filter(function(m){var g=m.genre_ids||[];return g.includes(878)||g.includes(28);});
-        else validFilms=allFilms;
+        if(rowLower.includes('action'))                                      validFilms=allFilms.filter(function(m){var g=m.genre_ids||[];return g.includes(28)||g.includes(12)||g.includes(878)||g.includes(53);});
+        else if(rowLower.includes('comedy'))                                 validFilms=allFilms.filter(function(m){return(m.genre_ids||[]).includes(35);});
+        else if(rowLower.includes('drama'))                                  validFilms=allFilms.filter(function(m){return(m.genre_ids||[]).includes(18);});
+        else if(rowLower.includes('crime')||rowLower.includes('thriller'))   validFilms=allFilms.filter(function(m){var g=m.genre_ids||[];return g.includes(80)||g.includes(53);});
+        else if(rowLower.includes('sci-fi')||rowLower.includes('fantasy'))   validFilms=allFilms.filter(function(m){var g=m.genre_ids||[];return g.includes(878)||g.includes(14);});
+        else if(rowLower.includes('animated')||rowLower.includes('voice'))   validFilms=allFilms.filter(function(m){return(m.genre_ids||[]).includes(16);});
+        else if(rowLower.includes('horror'))                                  validFilms=allFilms.filter(function(m){return(m.genre_ids||[]).includes(27);});
+        else if(rowLower.includes('1990s')||rowLower.includes('90s'))        validFilms=allFilms.filter(function(m){var y=(m.release_date||'').slice(0,4);return y>='1990'&&y<='1999';});
+        else if(rowLower.includes('before 1990'))                            validFilms=allFilms.filter(function(m){return(m.release_date||'').slice(0,4)<'1990';});
+        else if(rowLower.includes('after 2015'))                             validFilms=allFilms.filter(function(m){return(m.release_date||'').slice(0,4)>'2015';});
+        else if(rowLower.includes('after 2010'))                             validFilms=allFilms.filter(function(m){return(m.release_date||'').slice(0,4)>'2010';});
+        else {
+          // Director-based: filter by director name from person credits
+          var dirSnippet=null;
+          ['spielberg','scorsese','nolan','tarantino','fincher','kubrick','coen','anderson'].forEach(function(d){if(rowLower.includes(d))dirSnippet=d;});
+          if(dirSnippet) validFilms=allFilms; // can't filter filmography by director easily, use all
+          else validFilms=allFilms;
+        }
         if(!validFilms.length)validFilms=allFilms;
 
         // Sort by popularity descending
